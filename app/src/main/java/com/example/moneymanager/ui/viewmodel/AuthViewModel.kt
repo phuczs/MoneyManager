@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moneymanager.data.model.User
 import com.example.moneymanager.data.repository.AuthRepository
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val googleSignInClient: GoogleSignInClient
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -58,6 +60,8 @@ class AuthViewModel @Inject constructor(
     fun signOut() {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
+            // Sign out from Google as well
+            googleSignInClient.signOut()
             val result = authRepository.signOut()
             _authState.value = result.fold(
                 onSuccess = { AuthState.SignedOut },
@@ -65,6 +69,19 @@ class AuthViewModel @Inject constructor(
             )
         }
     }
+
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = authRepository.signInWithGoogle(idToken)
+            _authState.value = result.fold(
+                onSuccess = { AuthState.Success(it) },
+                onFailure = { AuthState.Error(it.message ?: "Google sign-in failed") }
+            )
+        }
+    }
+
+    fun getGoogleSignInClient() = googleSignInClient
 
     fun resetState() {
         _authState.value = AuthState.Idle

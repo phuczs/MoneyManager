@@ -5,6 +5,8 @@ A modern Android application for personal finance management built with Jetpack 
 ## 📱 Features
 
 - **User Authentication** - Secure login/register with Firebase Auth
+  - Email/Password authentication
+  - Google Sign-In authentication
 - **Transaction Management** - Add, edit, delete income and expense transactions
 - **Category Management** - Organize transactions with custom categories
 - **Balance Tracking** - Real-time balance calculation and display
@@ -47,9 +49,10 @@ This app follows **Clean Architecture** principles with MVVM pattern:
 
 2. **Firebase Setup**
    - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
-   - Enable Authentication (Email/Password)
+   - Enable Authentication (Email/Password and Google)
    - Enable Firestore Database
    - Download `google-services.json` and place it in `app/` directory
+   - **For Google Sign-In**: Follow [Google Sign-In Setup Guide](GOOGLE_SIGNIN_SETUP.md)
 
 3. **Build and Run**
    ```bash
