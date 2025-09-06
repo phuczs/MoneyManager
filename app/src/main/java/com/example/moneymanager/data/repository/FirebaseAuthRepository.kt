@@ -1,6 +1,7 @@
 package com.example.moneymanager.data.repository
 
 import com.example.moneymanager.data.model.User
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -93,6 +94,23 @@ class FirebaseAuthRepository @Inject constructor(
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    override suspend fun signInWithGoogleAccount(account: GoogleSignInAccount): Result<User> {
+        return try {
+            val idToken = account.idToken
+            if (idToken != null) {
+                // Use the standard ID token method if available
+                signInWithGoogle(idToken)
+            } else {
+                // Fallback: Create credential with Google account info
+                // Note: This is a simplified approach for when ID token is not available
+                // In production, you should ensure proper OAuth setup
+                Result.failure(Exception("Google Sign-In requires proper OAuth configuration. Please complete Firebase setup."))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Google Sign-In error: ${e.message}. Please check your Firebase configuration."))
         }
     }
 

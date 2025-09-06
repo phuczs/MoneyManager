@@ -74,10 +74,16 @@ fun LoginScreen(
                 account.idToken?.let { idToken ->
                     viewModel.signInWithGoogle(idToken)
                 } ?: run {
-                    // Handle error - no ID token
+                    // Fallback: Use account-based authentication
+                    viewModel.signInWithGoogleAccount(account)
                 }
             } catch (e: ApiException) {
                 // Handle Google Sign-In failure
+                kotlinx.coroutines.runBlocking {
+                    snackbarHostState.showSnackbar(
+                        "Google Sign-In failed: ${e.message}. Please complete Firebase OAuth setup."
+                    )
+                }
             }
         }
     }
