@@ -2,11 +2,13 @@ package com.example.moneymanager.data.repository
 
 import com.example.moneymanager.data.model.User
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -26,7 +28,11 @@ class FirebaseAuthRepository @Inject constructor(
                 User(
                     id = firebaseUser.uid,
                     email = firebaseUser.email ?: "",
-                    displayName = firebaseUser.displayName ?: ""
+                    displayName = firebaseUser.displayName ?: "",
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                    phoneNumber = firebaseUser.phoneNumber,
+                    createdAt = firebaseUser.metadata?.creationTimestamp ?: System.currentTimeMillis(),
+                    lastLoginAt = firebaseUser.metadata?.lastSignInTimestamp ?: System.currentTimeMillis()
                 )
             })
         }
@@ -44,7 +50,11 @@ class FirebaseAuthRepository @Inject constructor(
                 Result.success(User(
                     id = firebaseUser.uid,
                     email = firebaseUser.email ?: "",
-                    displayName = firebaseUser.displayName ?: ""
+                    displayName = firebaseUser.displayName ?: "",
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                    phoneNumber = firebaseUser.phoneNumber,
+                    createdAt = firebaseUser.metadata?.creationTimestamp ?: System.currentTimeMillis(),
+                    lastLoginAt = firebaseUser.metadata?.lastSignInTimestamp ?: System.currentTimeMillis()
                 ))
             } else {
                 Result.failure(Exception("Authentication failed"))
@@ -66,7 +76,11 @@ class FirebaseAuthRepository @Inject constructor(
                 Result.success(User(
                     id = firebaseUser.uid,
                     email = firebaseUser.email ?: "",
-                    displayName = firebaseUser.displayName ?: ""
+                    displayName = firebaseUser.displayName ?: "",
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                    phoneNumber = firebaseUser.phoneNumber,
+                    createdAt = firebaseUser.metadata?.creationTimestamp ?: System.currentTimeMillis(),
+                    lastLoginAt = firebaseUser.metadata?.lastSignInTimestamp ?: System.currentTimeMillis()
                 ))
             } else {
                 Result.failure(Exception("Registration failed"))
@@ -87,7 +101,11 @@ class FirebaseAuthRepository @Inject constructor(
                 Result.success(User(
                     id = firebaseUser.uid,
                     email = firebaseUser.email ?: "",
-                    displayName = firebaseUser.displayName ?: ""
+                    displayName = firebaseUser.displayName ?: "",
+                    photoUrl = firebaseUser.photoUrl?.toString(),
+                    phoneNumber = firebaseUser.phoneNumber,
+                    createdAt = firebaseUser.metadata?.creationTimestamp ?: System.currentTimeMillis(),
+                    lastLoginAt = firebaseUser.metadata?.lastSignInTimestamp ?: System.currentTimeMillis()
                 ))
             } else {
                 Result.failure(Exception("Google sign-in failed"))
@@ -128,6 +146,70 @@ class FirebaseAuthRepository @Inject constructor(
     override suspend fun signOut(): Result<Unit> {
         return try {
             auth.signOut()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Profile management methods
+    override suspend fun updateDisplayName(displayName: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(Exception("User not authenticated"))
+            val profileUpdates = userProfileChangeRequest {
+                this.displayName = displayName
+            }
+            user.updateProfile(profileUpdates).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updatePhoneNumber(phoneNumber: String): Result<Unit> {
+        return try {
+            // Note: Phone number update requires phone auth credential
+            // This is a placeholder - actual implementation would require phone verification
+            Result.failure(Exception("Phone number update requires phone verification flow"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(Exception("User not authenticated"))
+            val email = user.email ?: return Result.failure(Exception("Email not available"))
+            
+            // Re-authenticate user first
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+            user.reauthenticate(credential).await()
+            
+            // Update password
+            user.updatePassword(newPassword).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateProfilePhoto(photoUrl: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(Exception("User not authenticated"))
+            val profileUpdates = userProfileChangeRequest {
+                this.photoUri = android.net.Uri.parse(photoUrl)
+            }
+            user.updateProfile(profileUpdates).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteAccount(): Result<Unit> {
+        return try {
+            val user = auth.currentUser ?: return Result.failure(Exception("User not authenticated"))
+            user.delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

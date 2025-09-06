@@ -84,6 +84,9 @@ dependencies {
     // Charts for visualization
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
+    
+    // Image Loading
+    implementation(libs.coil.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -14,4 +14,11 @@ interface AuthRepository {
     suspend fun signInWithGoogleAccount(account: GoogleSignInAccount): Result<User>
     suspend fun resetPassword(email: String): Result<Unit>
     suspend fun signOut(): Result<Unit>
+    
+    // Profile management methods
+    suspend fun updateDisplayName(displayName: String): Result<Unit>
+    suspend fun updatePhoneNumber(phoneNumber: String): Result<Unit>
+    suspend fun updatePassword(currentPassword: String, newPassword: String): Result<Unit>
+    suspend fun updateProfilePhoto(photoUrl: String): Result<Unit>
+    suspend fun deleteAccount(): Result<Unit>
 }

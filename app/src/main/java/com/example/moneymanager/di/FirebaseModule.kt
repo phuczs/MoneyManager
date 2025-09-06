@@ -37,10 +37,17 @@ object FirebaseModule {
     @Provides
     @Singleton
     fun provideGoogleSignInClient(@ApplicationContext context: Context): GoogleSignInClient {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(com.example.moneymanager.R.string.default_web_client_id))
-            .requestEmail()
-            .build()
+        val gso = try {
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(context.getString(com.example.moneymanager.R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+        } catch (e: Exception) {
+            // Fallback configuration when google-services.json is not available
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
+        }
         return GoogleSignIn.getClient(context, gso)
     }
 

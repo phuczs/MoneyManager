@@ -98,6 +98,51 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Idle
     }
 
+    // Profile management methods
+    fun updateDisplayName(displayName: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = authRepository.updateDisplayName(displayName)
+            _authState.value = result.fold(
+                onSuccess = { AuthState.ProfileUpdated },
+                onFailure = { AuthState.Error(it.message ?: "Failed to update display name") }
+            )
+        }
+    }
+
+    fun updatePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = authRepository.updatePassword(currentPassword, newPassword)
+            _authState.value = result.fold(
+                onSuccess = { AuthState.ProfileUpdated },
+                onFailure = { AuthState.Error(it.message ?: "Failed to update password") }
+            )
+        }
+    }
+
+    fun updateProfilePhoto(photoUrl: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = authRepository.updateProfilePhoto(photoUrl)
+            _authState.value = result.fold(
+                onSuccess = { AuthState.ProfileUpdated },
+                onFailure = { AuthState.Error(it.message ?: "Failed to update profile photo") }
+            )
+        }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = authRepository.deleteAccount()
+            _authState.value = result.fold(
+                onSuccess = { AuthState.AccountDeleted },
+                onFailure = { AuthState.Error(it.message ?: "Failed to delete account") }
+            )
+        }
+    }
+
     sealed class AuthState {
         object Idle : AuthState()
         object Loading : AuthState()
@@ -105,5 +150,7 @@ class AuthViewModel @Inject constructor(
         data class Error(val message: String) : AuthState()
         object PasswordResetSent : AuthState()
         object SignedOut : AuthState()
+        object ProfileUpdated : AuthState()
+        object AccountDeleted : AuthState()
     }
 }

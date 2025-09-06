@@ -28,6 +28,9 @@ lifecycle = "2.7.0"
 # Charts
 vico = "1.13.1"
 
+# Image Loading
+coil = "2.5.0"
+
 # Google Services
 google-services = "4.4.0"
 google-play-services-auth = "20.7.0"
@@ -74,6 +77,9 @@ lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-
 # Charts
 vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
+
+# Image Loading
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-navigation-compose-jvmstubs = { group = "androidx.navigation", name = "navigation-compose-jvmstubs", version.ref = "navigationComposeJvmstubs" }
 
 # Google Play Services
