@@ -22,12 +22,12 @@ git commit -m "Your message" # Commit with descriptive message
 #### **3. Working with Branches**
 ```bash
 # Create and switch to new feature branch
-git checkout -b feature/add-budget-tracking
+git checkout -b feature/transaction-filtering
 git checkout -b fix/balance-calculation
 
 # Switch between branches
 git checkout master          # Switch to main branch
-git checkout feature/add-budget-tracking
+git checkout feature/transaction-filtering
 
 # List all branches
 git branch                   # Local branches
@@ -38,10 +38,10 @@ git branch -a               # All branches (local + remote)
 ```bash
 # Merge feature branch into master
 git checkout master
-git merge feature/add-budget-tracking
+git merge feature/transaction-filtering
 
 # Delete merged branch
-git branch -d feature/add-budget-tracking
+git branch -d feature/transaction-filtering
 ```
 
 ### **🔄 Recommended Development Workflow**

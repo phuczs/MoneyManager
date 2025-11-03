@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -314,32 +318,74 @@ fun QuickActions(
     onNavigateToTransactions: () -> Unit,
     onNavigateToCategories: () -> Unit
 ) {
-    data class QuickAction(val title: String, val icon: ImageVector, val color: Color, val onClick: () -> Unit)
+    data class QuickAction(
+        val title: String, 
+        val icon: ImageVector, 
+        val color: Color, 
+        val onClick: () -> Unit
+    )
     
     val actions = listOf(
-        QuickAction("Add Transaction", Icons.Default.Add, Color(0xFFEF4444), onNavigateToAddTransaction),
-        QuickAction("View Bills", Icons.Default.List, Color(0xFF3B82F6), onNavigateToTransactions),
-        QuickAction("Categories", Icons.Default.Star, Color(0xFF10B981), onNavigateToCategories),
-        QuickAction("Statistics", Icons.Default.Info, Color(0xFFF59E0B)) { }
+        QuickAction(
+            "Add Transaction", 
+            Icons.Default.Add, 
+            Color(0xFFEF4444), 
+            onNavigateToAddTransaction
+        ),
+        QuickAction(
+            "View Bills", 
+            Icons.Default.List, 
+            Color(0xFF3B82F6), 
+            onNavigateToTransactions
+        ),
+        QuickAction(
+            "Categories", 
+            Icons.Default.Star, 
+            Color(0xFF10B981), 
+            onNavigateToCategories
+        )
     )
-    LazyRow(modifier = Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    
+    LazyRow(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         items(actions) { action ->
             Card(
-                modifier = Modifier.width(100.dp).clickable { action.onClick() },
+                modifier = Modifier
+                    .width(100.dp)
+                    .clickable { action.onClick() },
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     Box(
-                        modifier = Modifier.size(48.dp).clip(CircleShape).background(action.color.copy(alpha = 0.1f)),
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(action.color.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(imageVector = action.icon, contentDescription = action.title, tint = action.color, modifier = Modifier.size(24.dp))
+                        Icon(
+                            imageVector = action.icon,
+                            contentDescription = action.title,
+                            tint = action.color,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = action.title, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, 
-                         color = Color(0xFF374151), textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = action.title,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF374151),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
@@ -445,8 +491,8 @@ fun TransactionItem(transaction: Transaction, onTransactionClick: (String) -> Un
                 if (!transaction.description.isNullOrEmpty()) {
                     Text(transaction.description, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF6B7280))
                 }
-                transaction.date?.let { date ->
-                    Text(SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date.toDate()),
+                if (transaction.date != null) {
+                    Text(SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(transaction.date.toDate()),
                          style = MaterialTheme.typography.bodySmall, color = Color(0xFF9CA3AF))
                 }
             }

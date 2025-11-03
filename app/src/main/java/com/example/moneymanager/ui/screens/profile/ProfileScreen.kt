@@ -5,9 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,13 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,7 +40,6 @@ fun ProfileScreen(
 ) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle(initialValue = null)
-    val context = LocalContext.current
     
     var showEditNameDialog by remember { mutableStateOf(false) }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
@@ -310,7 +308,7 @@ private fun ProfileContent(
         SectionHeader(title = "Danger Zone", isWarning = true)
 
         ProfileOption(
-            icon = Icons.Default.ExitToApp,
+            icon = Icons.AutoMirrored.Filled.ExitToApp,
             title = "Sign Out",
             subtitle = "Sign out of your account",
             onClick = onSignOutClick,
@@ -393,7 +391,7 @@ private fun ProfileOption(
 
             if (onClick != null) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "Navigate",
                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     modifier = Modifier.size(20.dp)
@@ -530,31 +528,12 @@ private fun DeleteAccountDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = "Warning",
-                tint = MaterialTheme.colorScheme.error
-            )
-        },
-        title = { 
-            Text(
-                "Delete Account",
-                color = MaterialTheme.colorScheme.error
-            ) 
-        },
-        text = {
-            Text(
-                "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.",
-                textAlign = TextAlign.Center
-            )
-        },
+        title = { Text("Delete Account") },
+        text = { Text("Are you sure you want to permanently delete your account? This action cannot be undone.") },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
             ) {
                 Text("Delete")
             }
@@ -568,49 +547,33 @@ private fun DeleteAccountDialog(
 }
 
 @Composable
-private fun ImagePickerDialog(
+fun ImagePickerDialog(
     onDismiss: () -> Unit,
     onImageSelected: (String) -> Unit
 ) {
     var imageUrl by remember { mutableStateOf("") }
-
+    
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Update Profile Photo") },
+        title = { Text(text = "Choose Image") },
         text = {
-            Column {
-                Text("Enter an image URL:")
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = imageUrl,
                     onValueChange = { imageUrl = it },
-                    label = { Text("Image URL") },
-                    placeholder = { Text("https://example.com/image.jpg") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Note: In a real app, you would integrate with image picker or camera",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    label = { Text(text = "Image URL") },
+                    placeholder = { Text(text = "https://example.com/image.png") }
                 )
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = { 
-                    if (imageUrl.isNotBlank()) {
-                        onImageSelected(imageUrl.trim())
-                    }
-                }
-            ) {
-                Text("Save")
+            Button(onClick = { onImageSelected(imageUrl) }) {
+                Text(text = "OK")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            Button(onClick = onDismiss) {
+                Text(text = "Cancel")
             }
         }
     )

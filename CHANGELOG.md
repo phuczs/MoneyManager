@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Planned
-- Budget tracking and alerts
 - Data export functionality
 - Offline support improvements
 - Enhanced data visualization with charts

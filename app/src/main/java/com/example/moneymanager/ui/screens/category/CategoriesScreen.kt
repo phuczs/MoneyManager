@@ -199,37 +199,41 @@ fun CategoriesScreen(
                     }
                 }
                 is CategoryViewModel.CategoriesState.Error -> {
+                    val errorMessage = (categoriesState as CategoryViewModel.CategoriesState.Error).message
                     Box(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            text = (categoriesState as CategoryViewModel.CategoriesState.Error).message,
-                            color = MaterialTheme.colorScheme.error,
+                        Column(
                             modifier = Modifier.align(Alignment.Center),
-                            textAlign = TextAlign.Center
-                        )
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Error: $errorMessage",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = { categoryViewModel.loadAllCategories() }) {
+                                Text("Retry")
+                            }
+                        }
                     }
                 }
                 is CategoryViewModel.CategoriesState.Success -> {
                     val categories = (categoriesState as CategoryViewModel.CategoriesState.Success).categories
                     
                     if (categories.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Text(
-                                text = "No categories found. Add your first category!",
-                                modifier = Modifier.align(Alignment.Center),
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        EmptyCategoriesScreen()
                     } else {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(categories) { category ->
-                                CategoryItem(category) {
-                                    categoryToDelete = category
-                                    showDeleteConfirmDialog = true
-                                }
+                                CategoryItem(
+                                    category = category,
+                                    onDelete = {
+                                        categoryToDelete = category
+                                        showDeleteConfirmDialog = true
+                                    }
+                                )
                             }
                             
                             item {
@@ -244,11 +248,55 @@ fun CategoriesScreen(
 }
 
 @Composable
-fun CategoryItem(category: Category, onDelete: () -> Unit) {
+fun EmptyCategoriesScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add",
+                modifier = Modifier.size(60.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            text = "No categories yet",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = "Create your first category to get started",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun CategoryItem(
+    category: Category,
+    onDelete: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -256,41 +304,61 @@ fun CategoryItem(category: Category, onDelete: () -> Unit) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category type indicator
+            // Category icon
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (category.type == "income") Color(0xFF4CAF50).copy(alpha = 0.2f)
-                        else Color(0xFFF44336).copy(alpha = 0.2f)
+                        if (category.type == "income") 
+                            Color(0xFF4CAF50).copy(alpha = 0.1f) 
+                        else Color(0xFFF44336).copy(alpha = 0.1f)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = category.name.take(1).uppercase(),
-                    color = if (category.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                Icon(
+                    imageVector = if (category.type == "income") Icons.Default.Add else Icons.Default.Delete,
+                    contentDescription = category.type,
+                    tint = if (category.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336),
+                    modifier = Modifier.size(20.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             
-            Text(
-                text = category.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+            Column(
                 modifier = Modifier.weight(1f)
-            )
+            ) {
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
             
-            Text(
-                text = category.type.replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (category.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336)
-            )
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Category type badge
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (category.type == "income") 
+                            Color(0xFF4CAF50).copy(alpha = 0.1f) 
+                        else Color(0xFFF44336).copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = category.type.replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (category.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             
             IconButton(onClick = onDelete) {
                 Icon(
