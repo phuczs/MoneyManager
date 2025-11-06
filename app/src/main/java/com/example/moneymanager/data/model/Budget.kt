@@ -2,11 +2,13 @@ package com.example.moneymanager.data.model
 
 import com.google.firebase.firestore.DocumentId
 
-data class Category(
+data class Budget(
     @DocumentId
     val id: String = "",
     val userId: String = "",
-    val name: String = "",
-    val type: String = "", // "income" or "expense"
-    val icon: String = "default" // Icon identifier
+    val category: String = "",
+    val amount: Double = 0.0,
+    var spentAmount: Double = 0.0,
+    val month: Int = 0,
+    val year: Int = 0
 )

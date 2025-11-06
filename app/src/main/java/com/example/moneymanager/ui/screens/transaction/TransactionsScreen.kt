@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.List
@@ -58,7 +59,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.moneymanager.data.model.Category
 import com.example.moneymanager.data.model.Transaction
+import com.example.moneymanager.ui.util.CategoryIcons
 import com.example.moneymanager.ui.viewmodel.TransactionViewModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -277,7 +280,7 @@ fun TransactionListItem(transaction: Transaction, onTransactionClick: (String) -
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Transaction type indicator
+            // Transaction type indicator with category icon
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -289,8 +292,8 @@ fun TransactionListItem(transaction: Transaction, onTransactionClick: (String) -
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (transaction.type == "income") Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = transaction.type,
+                    imageVector = Icons.Default.Category,
+                    contentDescription = transaction.category,
                     tint = if (transaction.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336)
                 )
             }

@@ -28,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.moneymanager.ui.screens.auth.LoginScreen
 import com.example.moneymanager.ui.screens.auth.RegisterScreen
+import com.example.moneymanager.ui.screens.budget.BudgetScreen
 import com.example.moneymanager.ui.screens.category.CategoriesScreen
 import com.example.moneymanager.ui.screens.dashboard.DashboardScreen
 import com.example.moneymanager.ui.screens.profile.ProfileScreen
@@ -43,7 +44,7 @@ fun MainContainer(
 ) {
     val isAuthenticated by authViewModel.isAuthenticated.collectAsState(initial = false)
     var selectedTabIndex by remember { mutableStateOf(0) }
-    
+
     // Only show navigation bar for authenticated users
     if (isAuthenticated) {
         Scaffold(
@@ -180,7 +181,7 @@ fun NavGraph(
 ) {
     val isAuthenticated by authViewModel.isAuthenticated.collectAsState(initial = false)
     val authState by authViewModel.authState.collectAsState()
-    
+
     // Handle auth state changes
     when (authState) {
         is AuthViewModel.AuthState.SignedOut,
@@ -192,7 +193,7 @@ fun NavGraph(
         }
         else -> {}
     }
-    
+
     NavHost(
         navController = navController,
         startDestination = if (isAuthenticated) Screen.Dashboard.route else Screen.Login.route,
@@ -211,7 +212,7 @@ fun NavGraph(
                 }
             )
         }
-        
+
         composable(Screen.Register.route) {
             RegisterScreen(
                 onNavigateToLogin = {
@@ -226,7 +227,7 @@ fun NavGraph(
                 }
             )
         }
-        
+
         // Main app screens
         composable(Screen.Dashboard.route) {
             DashboardScreen(
@@ -234,12 +235,13 @@ fun NavGraph(
                 onNavigateToTransactions = { navController.navigate(Screen.Transactions.route) },
                 onNavigateToCategories = { navController.navigate(Screen.Categories.route) },
                 onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                onNavigateToBudget = { navController.navigate(Screen.Budget.route) },
                 onTransactionClick = { transactionId ->
                     navController.navigate(Screen.EditTransaction.createRoute(transactionId))
                 }
             )
         }
-        
+
         composable(Screen.Transactions.route) {
             TransactionsScreen(
                 onNavigateBack = { navController.popBackStack() },
@@ -249,13 +251,13 @@ fun NavGraph(
                 }
             )
         }
-        
+
         composable(Screen.AddTransaction.route) {
             AddEditTransactionScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        
+
         composable(route = Screen.EditTransaction.route) { backStackEntry ->
             val transactionId = backStackEntry.arguments?.getString("transactionId") ?: ""
             AddEditTransactionScreen(
@@ -263,13 +265,13 @@ fun NavGraph(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        
+
         composable(Screen.Categories.route) {
             CategoriesScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        
+
         composable(Screen.Profile.route) {
             ProfileScreen(
                 onNavigateToLogin = {
@@ -277,6 +279,12 @@ fun NavGraph(
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(Screen.Budget.route) {
+            BudgetScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

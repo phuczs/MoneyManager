@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import com.example.moneymanager.data.model.Category
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Divider
+import androidx.compose.material.icons.filled.Label
+
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -24,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -63,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.moneymanager.data.model.Transaction
+import com.example.moneymanager.ui.util.CategoryIcons
 import com.example.moneymanager.ui.viewmodel.AuthViewModel
 import com.example.moneymanager.ui.viewmodel.TransactionViewModel
 import java.text.NumberFormat
@@ -76,6 +83,7 @@ fun DashboardScreen(
     onNavigateToTransactions: () -> Unit,
     onNavigateToCategories: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToBudget: () -> Unit,
     onTransactionClick: (String) -> Unit,
     authViewModel: AuthViewModel = hiltViewModel(),
     transactionViewModel: TransactionViewModel = hiltViewModel()
@@ -83,15 +91,15 @@ fun DashboardScreen(
     val currentUser by authViewModel.currentUser.collectAsState(initial = null)
     val transactionsState by transactionViewModel.transactionsState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     LaunchedEffect(Unit) {
         transactionViewModel.loadAllTransactions()
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Column {
                         Text(
                             "Money Manager",
@@ -156,26 +164,27 @@ fun DashboardScreen(
                     // User Welcome Section
                     WelcomeSection(currentUser)
                 }
-                
+
                 item {
                     // Balance Card
                     BalanceCard(transactionsState)
                 }
-                
+
                 item {
                     // Quick Actions Grid
                     QuickActions(
                         onNavigateToAddTransaction = onNavigateToAddTransaction,
                         onNavigateToTransactions = onNavigateToTransactions,
-                        onNavigateToCategories = onNavigateToCategories
+                        onNavigateToCategories = onNavigateToCategories,
+                        onNavigateToBudget = onNavigateToBudget
                     )
                 }
-                
+
                 item {
                     // Income vs Expense Cards
                     IncomeExpenseCards(transactionsState)
                 }
-                
+
                 item {
                     // Recent Transactions Header
                     Row(
@@ -199,7 +208,7 @@ fun DashboardScreen(
                         )
                     }
                 }
-                
+
                 when (transactionsState) {
                     is TransactionViewModel.TransactionsState.Loading -> {
                         item {
@@ -232,7 +241,7 @@ fun DashboardScreen(
                         }
                     }
                 }
-                
+
                 item {
                     Spacer(modifier = Modifier.height(100.dp))
                 }
@@ -295,8 +304,8 @@ fun BalanceCard(transactionsState: TransactionViewModel.TransactionsState) {
                         Text("Total Balance", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
                         when (transactionsState) {
                             is TransactionViewModel.TransactionsState.Success -> {
-                                val balance = transactionsState.transactions.filter { it.type == "income" }.sumOf { it.amount } - 
-                                             transactionsState.transactions.filter { it.type == "expense" }.sumOf { it.amount }
+                                val balance = transactionsState.transactions.filter { it.type == "income" }.sumOf { it.amount } -
+                                        transactionsState.transactions.filter { it.type == "expense" }.sumOf { it.amount }
                                 Text(NumberFormat.getCurrencyInstance(Locale.getDefault()).format(balance),
                                     style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color.White)
                             }
@@ -316,36 +325,43 @@ fun BalanceCard(transactionsState: TransactionViewModel.TransactionsState) {
 fun QuickActions(
     onNavigateToAddTransaction: () -> Unit,
     onNavigateToTransactions: () -> Unit,
-    onNavigateToCategories: () -> Unit
+    onNavigateToCategories: () -> Unit,
+    onNavigateToBudget: () -> Unit
 ) {
     data class QuickAction(
-        val title: String, 
-        val icon: ImageVector, 
-        val color: Color, 
+        val title: String,
+        val icon: ImageVector,
+        val color: Color,
         val onClick: () -> Unit
     )
-    
+
     val actions = listOf(
         QuickAction(
-            "Add Transaction", 
-            Icons.Default.Add, 
-            Color(0xFFEF4444), 
+            "Add Transaction",
+            Icons.Default.Add,
+            Color(0xFFEF4444),
             onNavigateToAddTransaction
         ),
         QuickAction(
-            "View Bills", 
-            Icons.Default.List, 
-            Color(0xFF3B82F6), 
+            "View Bills",
+            Icons.Default.List,
+            Color(0xFF3B82F6),
             onNavigateToTransactions
         ),
         QuickAction(
-            "Categories", 
-            Icons.Default.Star, 
-            Color(0xFF10B981), 
+            "Categories",
+            Icons.Default.Star,
+            Color(0xFF10B981),
             onNavigateToCategories
+        ),
+        QuickAction(
+            "Budgets",
+            Icons.Default.Info,
+            Color(0xFFF97316),
+            onNavigateToBudget
         )
     )
-    
+
     LazyRow(
         modifier = Modifier.padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -426,7 +442,7 @@ fun IncomeExpenseCards(transactionsState: TransactionViewModel.TransactionsState
                 Text("This Month Income", style = MaterialTheme.typography.bodySmall, color = Color(0xFF6B7280))
             }
         }
-        
+
         // Expense Card
         Card(
             modifier = Modifier.weight(1f),
@@ -473,7 +489,7 @@ fun TransactionItem(transaction: Transaction, onTransactionClick: (String) -> Un
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier.size(48.dp).clip(CircleShape).background(
-                    if (transaction.type == "income") 
+                    if (transaction.type == "income")
                         Brush.linearGradient(colors = listOf(Color(0xFF10B981), Color(0xFF34D399)))
                     else Brush.linearGradient(colors = listOf(Color(0xFFEF4444), Color(0xFFF87171)))
                 ),
@@ -486,26 +502,26 @@ fun TransactionItem(transaction: Transaction, onTransactionClick: (String) -> Un
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(transaction.category ?: "Uncategorized", style = MaterialTheme.typography.titleMedium, 
-                     fontWeight = FontWeight.SemiBold, color = Color(0xFF1F2937))
+                Text(transaction.category ?: "Uncategorized", style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold, color = Color(0xFF1F2937))
                 if (!transaction.description.isNullOrEmpty()) {
                     Text(transaction.description, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF6B7280))
                 }
                 if (transaction.date != null) {
                     Text(SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(transaction.date.toDate()),
-                         style = MaterialTheme.typography.bodySmall, color = Color(0xFF9CA3AF))
+                        style = MaterialTheme.typography.bodySmall, color = Color(0xFF9CA3AF))
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
                 val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
                 Text(
-                    text = if (transaction.type == "income") "+${formatter.format(transaction.amount)}" 
-                           else "-${formatter.format(transaction.amount)}",
+                    text = if (transaction.type == "income") "+${formatter.format(transaction.amount)}"
+                    else "-${formatter.format(transaction.amount)}",
                     style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
                     color = if (transaction.type == "income") Color(0xFF10B981) else Color(0xFFEF4444)
                 )
-                Text(if (transaction.type == "income") "Income" else "Expense", 
-                     style = MaterialTheme.typography.bodySmall, color = Color(0xFF9CA3AF))
+                Text(if (transaction.type == "income") "Income" else "Expense",
+                    style = MaterialTheme.typography.bodySmall, color = Color(0xFF9CA3AF))
             }
         }
     }
@@ -555,7 +571,134 @@ fun EmptyState(onNavigateToAddTransaction: () -> Unit) {
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Start Recording", modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                     style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, color = Color.White)
+                    style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, color = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+fun RecentTransactions(
+    transactionsState: TransactionViewModel.TransactionsState,
+    categories: List<Category>,
+    onSeeAllClick: () -> Unit,
+    onTransactionClick: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Recent Transactions",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                TextButton(onClick = onSeeAllClick) {
+                    Text("See All")
+                }
+            }
+            
+            Divider(modifier = Modifier.fillMaxWidth())
+            
+            when (transactionsState) {
+                is TransactionViewModel.TransactionsState.Loading -> {
+                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                }
+                is TransactionViewModel.TransactionsState.Error -> {
+                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text(
+                            text = "Error loading transactions",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+                is TransactionViewModel.TransactionsState.Success -> {
+                    val transactions = transactionsState.transactions
+                        .sortedByDescending { it.date }
+                        .take(5)
+                    
+                    if (transactions.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            Text(
+                                text = "No transactions yet",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    } else {
+                        transactions.forEachIndexed { index, transaction ->
+                            val category = categories.find { it.name == transaction.category }
+                            
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onTransactionClick(transaction.id) }
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Category icon
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (transaction.type == "income") Color(0xFF4CAF50).copy(alpha = 0.2f)
+                                            else Color(0xFFF44336).copy(alpha = 0.2f)
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (category != null) CategoryIcons.getIcon(category.icon) else Icons.Default.Category,
+                                        contentDescription = transaction.category,
+                                        tint = if (transaction.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                
+                                Spacer(modifier = Modifier.width(12.dp))
+                                
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = transaction.category ?: "Uncategorized",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(transaction.date.toDate()),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                
+                                val formatter = NumberFormat.getCurrencyInstance(Locale.getDefault())
+                                Text(
+                                    text = formatter.format(transaction.amount),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (transaction.type == "income") Color(0xFF4CAF50) else Color(0xFFF44336)
+                                )
+                            }
+                            
+                            if (index < transactions.size - 1) {
+                                Divider(modifier = Modifier.fillMaxWidth())
+                            }
+                        }
+                    }
+                }
             }
         }
     }

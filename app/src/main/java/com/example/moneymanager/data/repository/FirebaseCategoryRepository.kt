@@ -74,6 +74,15 @@ class FirebaseCategoryRepository @Inject constructor(
         }
     }
 
+    override suspend fun updateCategory(category: Category): Result<Unit> {
+        return try {
+            categoriesCollection.document(category.id).set(category).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun deleteCategory(categoryId: String): Result<Unit> {
         return try {
             categoriesCollection.document(categoryId).delete().await()

@@ -71,16 +71,16 @@ class CategoryViewModel @Inject constructor(
     fun createDefaultCategories() {
         viewModelScope.launch {
             val defaultCategories = listOf(
-                Category(name = "Food & Drinks", type = "expense"),
-                Category(name = "Transportation", type = "expense"),
-                Category(name = "Shopping", type = "expense"),
-                Category(name = "Bills & Utilities", type = "expense"),
-                Category(name = "Entertainment", type = "expense"),
-                Category(name = "Healthcare", type = "expense"),
-                Category(name = "Salary", type = "income"),
-                Category(name = "Freelance", type = "income"),
-                Category(name = "Investment", type = "income"),
-                Category(name = "Other Income", type = "income")
+                Category(name = "Food & Drinks", type = "expense", icon = "food"),
+                Category(name = "Transportation", type = "expense", icon = "transport"),
+                Category(name = "Shopping", type = "expense", icon = "shopping"),
+                Category(name = "Bills & Utilities", type = "expense", icon = "bills"),
+                Category(name = "Entertainment", type = "expense", icon = "entertainment"),
+                Category(name = "Healthcare", type = "expense", icon = "healthcare"),
+                Category(name = "Salary", type = "income", icon = "salary"),
+                Category(name = "Freelance", type = "income", icon = "freelance"),
+                Category(name = "Investment", type = "income", icon = "investment"),
+                Category(name = "Other Income", type = "income", icon = "other")
             )
             
             defaultCategories.forEach { category ->
@@ -88,6 +88,20 @@ class CategoryViewModel @Inject constructor(
             }
             
             loadAllCategories()
+        }
+    }
+
+    fun updateCategory(category: Category) {
+        viewModelScope.launch {
+            categoryRepository.updateCategory(category)
+                .fold(
+                    onSuccess = { loadAllCategories() },
+                    onFailure = { error ->
+                        _categoriesState.value = CategoriesState.Error(
+                            error.message ?: "Failed to update category"
+                        )
+                    }
+                )
         }
     }
 

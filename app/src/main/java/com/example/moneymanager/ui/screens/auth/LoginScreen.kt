@@ -21,14 +21,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -127,7 +135,7 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
-                .background(Color(0xFF2196F3)) // Sky blue background
+                .background(Color(0xFF6366F1)) // Indigo background
         ) {
             Column(
                 modifier = Modifier
@@ -136,50 +144,114 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // App Logo and Title
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "App Logo",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(16.dp),
-                    tint = Color.White
-                )
+                // App Logo and Welcome message
+                Box(
+                    modifier = Modifier.size(64.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "Moon Icon",
+                        modifier = Modifier.size(48.dp),
+                        tint = Color.White
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "Money Manager",
-                    style = MaterialTheme.typography.headlineLarge,
+                    text = "✨ Budget Tracker",
+                    style = MaterialTheme.typography.headlineMedium,
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
                 
                 Text(
-                    text = "Manage your finances with ease",
+                    text = "Your journey to financial freedom",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.White.copy(alpha = 0.9f),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
                 )
                 
+                Text(
+                    text = "Welcome Back!",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                
+                Text(
+                    text = "Continue your financial journey",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
+                
                 // Login Form
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(24.dp))
                         .background(Color.White)
                         .padding(24.dp)
                 ) {
-                    Text(
-                        text = "Login to your account",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color(0xFF0D47A1), // Dark sky blue
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
+                    // Google Sign In Button
+                    OutlinedButton(
+                        onClick = {
+                            val signInIntent = viewModel.getGoogleSignInClient().signInIntent
+                            googleSignInLauncher.launch(signInIntent)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        enabled = authState !is AuthViewModel.AuthState.Loading,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = Color(0xFF1F2937)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "Google",
+                            tint = Color(0xFF1F2937)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "Sign in with Google",
+                            color = Color(0xFF1F2937)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Divider(
+                            modifier = Modifier.weight(1f),
+                            color = Color(0xFFE5E7EB)
+                        )
+                        Text(
+                            text = "OR SIGN IN WITH EMAIL",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF6B7280),
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Divider(
+                            modifier = Modifier.weight(1f),
+                            color = Color(0xFFE5E7EB)
+                        )
+                    }
                     
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email") },
+                        label = { Text("Email Address") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -189,10 +261,16 @@ fun LoginScreen(
                             Icon(
                                 imageVector = Icons.Default.Email,
                                 contentDescription = "Email Icon",
-                                tint = Color(0xFF2196F3) // Sky blue
+                                tint = Color(0xFF6366F1)
                             )
                         },
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF6366F1),
+                            unfocusedBorderColor = Color(0xFFE5E7EB),
+                            focusedLabelColor = Color(0xFF6366F1),
+                            unfocusedLabelColor = Color(0xFF6B7280)
+                        )
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
@@ -211,10 +289,16 @@ fun LoginScreen(
                             Icon(
                                 imageVector = Icons.Default.Lock,
                                 contentDescription = "Password Icon",
-                                tint = Color(0xFF2196F3) // Sky blue
+                                tint = Color(0xFF6366F1)
                             )
                         },
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF6366F1),
+                            unfocusedBorderColor = Color(0xFFE5E7EB),
+                            focusedLabelColor = Color(0xFF6366F1),
+                            unfocusedLabelColor = Color(0xFF6B7280)
+                        )
                     )
                     
                     TextButton(
@@ -231,71 +315,153 @@ fun LoginScreen(
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = false,
+                                onCheckedChange = { },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color(0xFF6366F1),
+                                    uncheckedColor = Color(0xFF6B7280)
+                                )
+                            )
+                            Text(
+                                "Keep me logged in",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF6B7280)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
                     Button(
                         onClick = { viewModel.login(email, password) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
+                            .height(48.dp),
                         enabled = email.isNotEmpty() && password.isNotEmpty() && authState !is AuthViewModel.AuthState.Loading,
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2196F3), // Sky blue
+                            containerColor = Color(0xFF6366F1),
                             contentColor = Color.White
                         )
                     ) {
                         Text(
-                            text = "Login",
+                            text = "SIGN IN",
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Divider with "OR"
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Divider(
-                            modifier = Modifier.weight(1f),
-                            color = Color(0xFF2196F3).copy(alpha = 0.2f) // Sky blue
-                        )
                         Text(
-                            text = " OR ",
-                            modifier = Modifier.padding(horizontal = 16.dp),
+                            "New here? ",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF2196F3) // Sky blue
+                            color = Color(0xFF6B7280)
                         )
-                        Divider(
-                            modifier = Modifier.weight(1f),
-                            color = Color(0xFF2196F3).copy(alpha = 0.2f) // Sky blue
-                        )
+                        TextButton(
+                            onClick = onNavigateToRegister
+                        ) {
+                            Text(
+                                "Create an Account",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                color = Color(0xFF6366F1)
+                            )
+                        }
                     }
                     
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Google Sign-In Button
-                    OutlinedButton(
-                        onClick = {
-                            val signInIntent = viewModel.getGoogleSignInClient().signInIntent
-                            googleSignInLauncher.launch(signInIntent)
-                        },
+                    // Bottom Icons
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
-                        enabled = authState !is AuthViewModel.AuthState.Loading,
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color(0xFF2196F3) // Sky blue
-                        )
+                            .padding(top = 32.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.BarChart,
+                                contentDescription = "Track",
+                                tint = Color(0xFF6366F1),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                "Track",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF6B7280)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Analytics,
+                                contentDescription = "Analyze",
+                                tint = Color(0xFF6366F1),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                "Analyze",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF6B7280)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Savings,
+                                contentDescription = "Save",
+                                tint = Color(0xFF6366F1),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                "Save",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF6B7280)
+                            )
+                        }
+                    }
+
+                    // VIP and Rewards
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = "Google",
-                            tint = Color(0xFF2196F3) // Sky blue
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Rewards",
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.size(16.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Continue with Google")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "Login daily for rewards!",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFFFFC107)
+                        )
                     }
                 }
                 

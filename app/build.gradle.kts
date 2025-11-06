@@ -69,6 +69,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.6")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
